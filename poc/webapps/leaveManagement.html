@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="">
+<meta name="author" content="">
+<title>Leave Tracker</title>
+
+
+
+<link rel="stylesheet" href="resources/css/jquery-ui.css" />
+<link href="resources/css/bootstrap.css" rel="stylesheet">
+<link href="resources/css/dashboard.css" rel="stylesheet">
+<link href="resources/css/emp.css" rel="stylesheet">
+
+<script src="resources/js/jquery-1.12.4.js"></script>
+<script src="resources/js/jquery-ui.js"></script>
+<script src="resources/js/highcharts.js"></script>
+<script>
+		var contextPath = "HcmPOC/";
+		
+	</script>
+
+</head>
+<body>
+
+	<nav class="navbar navbar-inverse navbar-fixed-top">
+		<div class="container-fluid">
+			<div class="navbar-header">
+				<button type="button" class="navbar-toggle collapsed"
+					data-toggle="collapse" data-target="#navbar" aria-expanded="false"
+					aria-controls="navbar">
+					<span class="sr-only">Toggle navigation</span> <span
+						class="icon-bar"></span> <span class="icon-bar"></span> <span
+						class="icon-bar"></span>
+				</button>
+				<a class="navbar-brand" href="#">HCM DEMO</a>
+			</div>
+			<div id="navbar" class="navbar-collapse collapse">
+				<ul class="nav navbar-nav navbar-right">
+					<li><a href="#">Welcome <span id="empName"></span></a></li>
+					<li><a href="#">Profile</a></li>
+					<li><a href="#">Help</a></li>
+				</ul>
+				<form class="navbar-form navbar-right">
+					<input type="text" class="form-control" placeholder="Search...">
+				</form>
+			</div>
+		</div>
+	</nav>
+
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-sm-3 col-md-2 sidebar">
+				<ul class="nav nav-sidebar">
+					<li class="active"><a href="#"
+						onclick="javascript:showApplyLeaves();">Apply Leave <span
+							class="sr-only">(current)</span></a></li>
+					<li><a href="#" onclick="javascript:showViewBalance();">View
+							Balance</a></li>
+					<li><a href="#" onclick="javascript:showHistory();">View
+							History</a></li>
+					<li id="td_1"><a href="#" onclick="javascript:showApproval();">View
+							Approvals</a></li>
+					<li><a href="/">Log Out</a></li>
+				</ul>
+
+			</div>
+			<div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+
+				<div class="table-responsive">
+					<table class="table table-striped">
+
+
+						<tr>
+							<td>
+								<table cellspacing="1" cellpadding="0" width="100%"
+									align="center" border="0" style="margin-top: 10px;">
+
+									<tr>
+										<td colspan="3">
+											<div id="msg" style="display: none; margin-top: 10px;"></div>
+											<div id="divShowApply">
+												<h2 class="sub-header">Apply Leave</h2>
+												<h4 class="sub-header">
+													Your Leave Balance is - <span id="blDiv"></span>
+												</h4>
+												<table class="table table-bordered">
+
+													<tr>
+														<td>Leave Type</td>
+														<td>
+															<!-- <select id="leaveTypeId">
+													<c:forEach var="ltype" items="${leaveTypes}">
+														<option value="${ltype.id}">${ltype.type}</option>
+													</c:forEach>
+											</select> --> <span id="spanLeaveType"></span>
+														</td>
+													</tr>
+
+													<tr>
+														<td>Start Date</td>
+														<td><input type="text" id="startDate" /></td>
+													</tr>
+
+													<tr>
+														<td>End Date</td>
+														<td><input type="text" id="endDate" /></td>
+													</tr>
+													<tr>
+														<td>Duration</td>
+														<td><input type="text" id="duration"
+															readonly="readonly" style="background-color: #d1d1d1;" /></td>
+													</tr>
+
+													<tr>
+														<td>Comments</td>
+														<td><textarea cols="2" rows="3" name="comments"
+																id="comments" style="width: 200px"></textarea></td>
+													</tr>
+
+													<tr>
+														<td>&nbsp;</td>
+														<td><input type="button" name="submit" id="submit"
+															value="Submit" />&nbsp;<input type="button"
+															name="cancel" value="Cancel" /></td>
+													</tr>
+												</table>
+
+
+												<!-- <div id="empId"></div> <div id="superVisorId"></div> -->
+												<input type="hidden" id="empId" /> <input type="hidden"
+													id="superVisorId" />
+
+											</div>
+
+											<div id="divShowBalance">
+												<h1>Leave Balances</h1>
+
+												<table class="table table-bordered" id="tblShowBalance">
+												</table>
+
+												<div id="barChartDiv" style="width: 550px; height: 400px; margin: 0 auto"></div>
+											</div>
+											<div id="divShowHistory">
+												<h1>Leave History</h1>
+
+												<table class="table table-bordered" id="tblShowHistory">
+												</table>
+												
+												<div id="monthLeaveDetailsChart" style="width: 550px; height: 400px; margin: 0 auto"></div>
+											</div>
+											<div id="divShowApproval" style="margin-top: 40px;">
+												<h1>Approvals</h1>
+												
+												<div id="reportees" style="padding-bottom:10px;">
+													Reportees : <span id="empSelectListDiv"></span>
+													<div id="empRenderDiv">
+													</div>
+												</div>
+												
+												<!-- <div>Reportees Details</div> -->
+												<table class="table table-bordered" id="empTable">
+												</table>
+
+												<div>Reportees Leave Details</div>
+												<table class="table table-bordered" id="LeaveDetails">
+												</table>
+											</div>
+										</td>
+										<td>
+											<div id="blDivMain"></div>
+										</td>
+									</tr>
+								</table>
+							</td>
+						</tr>
+
+
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+</body>
+<script src="resources/js/employee.js"></script>
+</html>

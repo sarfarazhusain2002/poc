@@ -1,0 +1,7 @@
+eclipse.preferences.version=1
+org.jboss.tools.openshift.ApplicationId=584f7ab10c1e669ed10000f5
+org.jboss.tools.openshift.ApplicationName=poc
+org.jboss.tools.openshift.Connection=https\://shabi.baig%40gmail.com@
+org.jboss.tools.openshift.DeployFolder=webapps
+org.jboss.tools.openshift.Domain=donate4ummat
+org.jboss.tools.openshift.RemoteName=origin
