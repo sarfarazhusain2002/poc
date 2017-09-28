@@ -19,6 +19,7 @@ public class CustMySqlConnectionUtils {
 		try {
 			
 			Class.forName("com.mysql.jdbc.Driver");
+			System.out.println("JDBC Drivers loaded..!");
 			//connection = DriverManager.getConnection("jdbc:mysql://59be807989f5cfa43f000019-donate4ummat.rhcloud.com:40986/bestsellerdeal", "admin3NA32ki", "SfM8DKljb-SE");
 			connection = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/notification", "s3m", "s3m@123");
 
