@@ -21,7 +21,7 @@ public class CustMySqlConnectionUtils {
 			Class.forName("com.mysql.jdbc.Driver");
 			System.out.println("JDBC Drivers loaded..!");
 			//connection = DriverManager.getConnection("jdbc:mysql://59be807989f5cfa43f000019-donate4ummat.rhcloud.com:40986/bestsellerdeal", "admin3NA32ki", "SfM8DKljb-SE");
-			connection = DriverManager.getConnection("jdbc:mysql://172.30.145.231:3306/notification", "s3m", "s3m@123");
+			connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/notification", "s3m", "s3m@123");
 
 		} catch (Exception e) {
 			System.out.println(e);
@@ -42,10 +42,10 @@ public class CustMySqlConnectionUtils {
 	public static void main(String args[]) {
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
-			Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/hcm_app", "root", "root");
+			Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/notification", "s3m", "s3m@123");
 			// here sonoo is database name, root is username and password
 			Statement stmt = con.createStatement();
-			ResultSet rs = stmt.executeQuery("select * from hcm_emp");
+			ResultSet rs = stmt.executeQuery("select * from customer_details");
 			while (rs.next())
 				System.out.println(rs.getInt(1) + "  " + rs.getString(2) + "  " + rs.getString(3));
 			con.close();
