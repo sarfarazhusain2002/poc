@@ -52,7 +52,7 @@ public class CustomerServiceImpl implements CustomerService{
 	@Override
 	public List<Notification> getNotifications(ReqGetNotification notification) {
 		// TODO Auto-generated method stub
-		return null;
+		return custDetailsDAO.getNotifications(notification);
 	}
 
 	
