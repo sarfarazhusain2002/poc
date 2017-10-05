@@ -2,7 +2,10 @@ package com.oxy.s3m.notification.controller.customer;
 
 
 
+import java.sql.Timestamp;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -147,9 +150,11 @@ public class CustomerRestController {
 
 
 	@RequestMapping(value = "/getNotifications", method = RequestMethod.PUT)
-	public @ResponseBody List<Notification> getMessages(@RequestBody String objJson) throws JSONException, ParseException {
+	public @ResponseBody MessageListBean getMessages(@RequestBody String objJson) throws JSONException, ParseException {
 
-
+		//SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss");
+		Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+		 
 		logger.debug("Logging Start---!");
 		JSONObject obj = new JSONObject(objJson.trim());
 		System.out.println(">>"+obj.get("getNotification"));
@@ -166,6 +171,8 @@ public class CustomerRestController {
 		try{
 			
 			 lstNotification=custService.getNotifications(reqGetNotification);
+			 messageListBean.setListofmessages(lstNotification);
+			 messageListBean.setLastmodifieddate(timestamp);
 			System.out.println(lstNotification.size());
 			
 
@@ -177,7 +184,7 @@ public class CustomerRestController {
 			ex.printStackTrace();
 		}
 
-		return lstNotification;
+		return messageListBean;
 
 	}
 
