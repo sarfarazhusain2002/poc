@@ -46,7 +46,7 @@ public class CustomerDetailsDAO {
 			"and cc.cust_id = cd.cust_id "+
 			"and no.notification_id = msg.notification_id "+
 			"and cd.cust_id=? "+
-			"and no.notification_enddate >=?";
+			"and no.notification_enddate >=? order by enddate desc";
 	public static final String INSERT_CUSTOMER_INTEREST = "INSERT INTO customer_interests(cust_id, area_id) VALUES (?,?)";
 	public static final String INSERT_CUSTOMER_CATEGORIES = "INSERT INTO customer_categories(cust_id, cat_id) VALUES (?,?)";
 
@@ -177,10 +177,10 @@ public class CustomerDetailsDAO {
 			while (rs.next()){
 				Notification not = new Notification();
 				Message msg = new Message();
-				not.setNotificationEnddate(rs.getDate("enddate"));
+				not.setNotificationEnddate(rs.getTimestamp("enddate"));
 				not.setNotificationTitle(rs.getString("title"));
 				msg.setMsgTxt(rs.getString("msg"));
-				System.out.println(rs.getDate("enddate"));
+				System.out.println(rs.getTimestamp("enddate"));
 				not.setMessages(msg);
 				lstNotification.add(not);
 			}

@@ -1,6 +1,11 @@
 package com.oxy.s3m.notification.beans.customer;
 // Generated Sep 15, 2017 4:52:02 PM by Hibernate Tools 5.2.3.Final
 
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
+
+//import java.util.Timestamp;
+
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -14,7 +19,7 @@ public class Notification implements java.io.Serializable {
 	//private Integer sellerId;
 	private String notificationTitle;
 //	private Date notificationStartdate;
-	private Date notificationEnddate;
+	private Timestamp notificationEnddate;
 	//private String status;
 	//private int catId;
 	private Message messages;
@@ -22,7 +27,7 @@ public class Notification implements java.io.Serializable {
 	public Notification() {
 	}
 
-	public Notification(String notificationTitle, Date notificationStartdate, Date notificationEnddate, int catId) {
+	public Notification(String notificationTitle, Date notificationStartdate, Timestamp notificationEnddate, int catId) {
 		this.notificationTitle = notificationTitle;
 		//this.notificationStartdate = notificationStartdate;
 		this.notificationEnddate = notificationEnddate;
@@ -30,7 +35,7 @@ public class Notification implements java.io.Serializable {
 	}
 
 	public Notification(Integer sellerId, String notificationTitle, Date notificationStartdate,
-			Date notificationEnddate, String status, int catId, Message messages) {
+			Timestamp notificationEnddate, String status, int catId, Message messages) {
 		//this.sellerId = sellerId;
 		this.notificationTitle = notificationTitle;
 		//this.notificationStartdate = notificationStartdate;
@@ -72,11 +77,12 @@ public class Notification implements java.io.Serializable {
 		this.notificationStartdate = notificationStartdate;
 	}
 */
-	public Date getNotificationEnddate() {
-		return this.notificationEnddate;
+	public String getNotificationEnddate() {
+		final   SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH.mm.ss");	
+		return sdf.format(this.notificationEnddate);
 	}
 
-	public void setNotificationEnddate(Date notificationEnddate) {
+	public void setNotificationEnddate(Timestamp notificationEnddate) {
 		this.notificationEnddate = notificationEnddate;
 	}
 
