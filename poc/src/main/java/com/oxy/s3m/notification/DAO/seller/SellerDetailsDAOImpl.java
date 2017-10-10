@@ -1,9 +1,13 @@
 package com.oxy.s3m.notification.DAO.seller;
 
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.annotation.Resource;
 
@@ -12,7 +16,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.oxy.s3m.connection.utils.CustMySqlConnectionUtils;
+import com.oxy.s3m.connection.utils.NotificationHelper;
+import com.oxy.s3m.connection.utils.badWordsFilter;
+import com.oxy.s3m.notification.beans.seller.SellerDetailsBean;
 import com.oxy.s3m.notification.exception.SellerException;
+import com.oxy.s3m.notification.model.seller.Notification;
 import com.oxy.s3m.notification.model.seller.SellerAddress;
 import com.oxy.s3m.notification.model.seller.SellerCategories;
 import com.oxy.s3m.notification.model.seller.SellerDetails;
@@ -33,6 +41,24 @@ public class SellerDetailsDAOImpl  implements SellerDetailsDAO{
 	public static final String INSERT_SELLER_ADDRESS = "insert  into  seller_address (seller_id, seller_ph, seller_country, seller_state, seller_city, seller_area, address) values (?, ?, ?, ?, ?, ?, ?)";
 	public static final String INSERT_SELLER_INTEREST = "INSERT INTO seller_interests(seller_id, area_id) VALUES (?,?)";
 	public static final String INSERT_SELLER_CATEGORIES = "INSERT INTO seller_categories(seller_id, cat_id) VALUES (?,?)";
+	public static final String INSERT_SELLER_NOTIFICATION = "INSERT INTO notification(seller_id,notification_title,notification_startdate,notification_enddate,status,cat_id) VALUES (?,?,?,?,?,?)";
+	public static final String INSERT_SELLER_MESSAGE = "INSERT INTO message(notification_id,msg_txt) VALUES (?,?)";
+	public static final String GET_NOTIFICATIONS_TOKEN = "select distinct cd.fcm_token fcm_token from notification no,seller_interests si, customer_interests ci,"+
+			"seller_details sd,"+  
+			"customer_categories cc,"+
+			"customer_details cd, message msg where no.seller_id = si.seller_id "+
+			"and si.area_id = ci.area_id "+
+			"and no.cat_id = cc.cat_id "+			
+			"and ci.cust_id = cd.cust_id "+
+			"and cc.cust_id = cd.cust_id "+
+			"and no.notification_id = msg.notification_id "+
+			"and sd.active = 1 "+
+			"and sd.seller_id=? ";
+	public static final String UPDATE_SELLER_NOTIFICATION = "UPDATE notification set status='sent' where notification_id=?";
+	public static final String SELLER_NOTIFICATION = "select max(notification_id) notification_id from notification";
+
+			
+	
 
 	private static final Logger LOGGER  = Logger
 			.getLogger(SellerDetailsDAOImpl.class);
@@ -180,6 +206,108 @@ public class SellerDetailsDAOImpl  implements SellerDetailsDAO{
 			stmtSellerInterests.executeUpdate();
 
 		}
+		stmtSellerInterests.close();
+
+
+	}
+
+	@Override
+	public SellerDetailsBean sendNotification(Notification notification) throws SellerException {
+		Connection con = null;		
+		con=CustMySqlConnectionUtils.getConnection();
+		SellerDetailsBean notificationBean = new SellerDetailsBean();
+		badWordsFilter badwordfilter = new badWordsFilter();
+		//NotificationHelper helper = new NotificationHelper();
+		ResultSet rs = null;
+		PreparedStatement stmtselect=null;
+		List<String> deviceToken= new ArrayList<String>();
+		try {
+			con.setAutoCommit(false);
+			Long not_id= insertNotification(notification, con);
+			insertMsg(notification,con,not_id);
+			con.commit();
+			if(badwordfilter.filterBadwords(notification.getNotificationTitle())) {
+				if(badwordfilter.filterBadwords(notification.getMessages().getMsgTxt())) {
+					System.out.println("Notification Querry:"+GET_NOTIFICATIONS_TOKEN +"id="+notification.getSellerId());
+					stmtselect = con.prepareStatement(GET_NOTIFICATIONS_TOKEN);
+					stmtselect.setLong(1, notification.getSellerId());
+					rs=stmtselect.executeQuery();
+					while(rs.next()) {
+						deviceToken.add(rs.getString("fcm_token"));
+					}
+					if(deviceToken==null || deviceToken.size()==0) {
+						notificationBean.setMessage("No Customer exist for your criteria");
+					//notificationBean.setSellerId(Integer.pnotification.getSellerId());
+					return notificationBean;}
+					String pushNotificationmsg=NotificationHelper.sendPushNotification(deviceToken, notification.getNotificationTitle(), notification.getMessages().getMsgTxt());
+					notificationBean.setMessage(pushNotificationmsg);
+				}else {
+					notificationBean.setMessage("Message body contains censored words");
+					//notificationBean.setSellerId(Integer.pnotification.getSellerId());
+					return notificationBean;
+				}
+			}else {
+				notificationBean.setMessage("Title contains censored words");
+				return notificationBean;
+			}
+			stmtselect = con.prepareStatement(UPDATE_SELLER_NOTIFICATION);
+			System.out.println("Update Query :"+UPDATE_SELLER_NOTIFICATION +">>>"+not_id);
+			stmtselect.setLong(1, not_id);
+			stmtselect.executeUpdate();
+			con.commit();
+			notificationBean.setMessage("Message Sent Successfully");
+			notificationBean.setSellerId((int) (long) notification.getSellerId());
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}finally {
+			try {
+				con.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
+		return notificationBean;
+	}
+	
+	public Long insertNotification(Notification transientInstance,Connection con) throws SQLException{
+		PreparedStatement stmtNotification=null;
+		stmtNotification= con.prepareStatement(INSERT_SELLER_NOTIFICATION);
+		Long not_id=0L;
+		//SellerCategories sellerCategories = transientInstance.getSellerCategorieses().iterator().next();
+			System.out.println("StartDate:"+transientInstance.getNotificationStartdate().toString());
+			stmtNotification.setLong(1, transientInstance.getSellerId());
+			stmtNotification.setString(2, transientInstance.getNotificationTitle());
+			stmtNotification.setTimestamp(3, Timestamp.valueOf(transientInstance.getNotificationStartdate().toString()));
+			stmtNotification.setTimestamp(4, Timestamp.valueOf(transientInstance.getNotificationEnddate().toString()));
+			stmtNotification.setString(5, "Process");
+			stmtNotification.setLong(6, transientInstance.getCatId());
+			stmtNotification.executeUpdate();
+			stmtNotification = con.prepareStatement(SELLER_NOTIFICATION);
+			ResultSet rs = stmtNotification.executeQuery();
+			rs.next();
+				not_id=(long) rs.getInt(1);
+	       
+		stmtNotification.close();
+		return not_id;
+
+
+	}
+	public void insertMsg(Notification transientInstance,Connection con,Long notId) throws SQLException{
+		PreparedStatement stmtSellerInterests=null;
+		stmtSellerInterests= con.prepareStatement(INSERT_SELLER_MESSAGE);
+		//SellerCategories sellerCategories = transientInstance.getSellerCategorieses().iterator().next();
+		
+			stmtSellerInterests.setLong(1, notId);
+			stmtSellerInterests.setString(2, transientInstance.getMessages().getMsgTxt());
+			stmtSellerInterests.executeUpdate();
+
+		
 		stmtSellerInterests.close();
 
 

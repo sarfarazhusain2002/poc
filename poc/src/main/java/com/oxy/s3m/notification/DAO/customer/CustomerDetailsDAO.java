@@ -46,6 +46,7 @@ public class CustomerDetailsDAO {
 			"and cc.cust_id = cd.cust_id "+
 			"and no.notification_id = msg.notification_id "+
 			"and cd.cust_id=? "+
+			"and no.status='sent' "+
 			"and no.notification_enddate >=? order by enddate desc";
 	public static final String INSERT_CUSTOMER_INTEREST = "INSERT INTO customer_interests(cust_id, area_id) VALUES (?,?)";
 	public static final String INSERT_CUSTOMER_CATEGORIES = "INSERT INTO customer_categories(cust_id, cat_id) VALUES (?,?)";

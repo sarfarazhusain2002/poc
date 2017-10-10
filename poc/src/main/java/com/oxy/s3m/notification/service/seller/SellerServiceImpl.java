@@ -5,7 +5,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.oxy.s3m.notification.DAO.seller.SellerDetailsDAOImpl;
+import com.oxy.s3m.notification.beans.seller.SellerDetailsBean;
 import com.oxy.s3m.notification.exception.SellerException;
+import com.oxy.s3m.notification.model.seller.Notification;
 import com.oxy.s3m.notification.model.seller.SellerDetails;
 
 @Service
@@ -29,6 +31,12 @@ public class SellerServiceImpl implements SellerService {
 
 	public void setSellerDetailsDAO(SellerDetailsDAOImpl sellerDetailsDAO) {
 		this.sellerDetailsDAO = sellerDetailsDAO;
+	}
+
+	@Override
+	public SellerDetailsBean sendNotification(Notification notification) throws SellerException {
+		// TODO Auto-generated method stub
+		return sellerDetailsDAO.sendNotification(notification);
 	}
 
 }

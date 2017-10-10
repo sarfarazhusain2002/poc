@@ -10,9 +10,12 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.oxy.s3m.notification.beans.seller.SellerDetailsBean;
+import com.oxy.s3m.notification.convertor.PushNotificationConvertor;
 import com.oxy.s3m.notification.convertor.SellerDetailsConverter;
+import com.oxy.s3m.notification.model.seller.Notification;
 import com.oxy.s3m.notification.model.seller.SellerDetails;
 import com.oxy.s3m.notification.service.seller.SellerService;
+import com.oxy.s3m.notification.validators.PushNotificationValidator;
 import com.oxy.s3m.notification.validators.SellerDetailsValidator;
 
 @RestController
@@ -82,6 +85,50 @@ public class SellerRestController {
 		}
 		return sellerDetailsBean;
 	}
+	
+	//-------------------Create a User--------------------------------------------------------
+		@RequestMapping(value = "/pushNotification", method = RequestMethod.POST)	
+		public @ResponseBody SellerDetailsBean pushNotification(@RequestBody String objJson) {
+			LOGGER.debug("Logging Start---!");
+			final JSONObject obj = new JSONObject(objJson.trim());
+			JSONObject objcustomer=(JSONObject) obj.get("pushnotification");
+			
+			PushNotificationValidator validator = new PushNotificationValidator();
+			final JSONObject jObject = validator.validate(objcustomer);
+			
+			SellerDetailsBean sellerDetailsBean = new SellerDetailsBean();
+			
+			if(!(Boolean) jObject.get("validate")){
+				
+				for(Object key : jObject.keySet()){
+					if("validate".equals(key)){
+						continue;
+					}
+					String msg = sellerDetailsBean.getMessage() == null ? "" : sellerDetailsBean.getMessage(); 
+					sellerDetailsBean.setMessage( msg + jObject.getString((String)key) + "\n");
+				}			
+				sellerDetailsBean.setStatus("Failed");
+				return sellerDetailsBean;
+			}
+			
+			
+	  		try{
+				
+	  			final PushNotificationConvertor pushNotificationConvertor = new PushNotificationConvertor();
+	  			Notification notification = pushNotificationConvertor.convertSellerDetails(objcustomer);
+				
+	  			sellerDetailsBean=sellerService.sendNotification(notification);
+				
+				
+			}catch(Exception ex){
+				LOGGER.error("Error occured while adding seller details " + ex.getMessage());
+				ex.printStackTrace();
+				sellerDetailsBean.setMessage(ex.getMessage());			
+				sellerDetailsBean.setStatus("Failed");
+			}
+			return sellerDetailsBean;
+		}
+
 
 //	private boolean isUserAuthenticated(String authString){
 //        
