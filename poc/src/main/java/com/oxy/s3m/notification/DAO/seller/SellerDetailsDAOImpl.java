@@ -233,6 +233,7 @@ public class SellerDetailsDAOImpl  implements SellerDetailsDAO{
 					stmtselect.setLong(1, notification.getSellerId());
 					rs=stmtselect.executeQuery();
 					while(rs.next()) {
+						System.out.println("Fcm Token : "+rs.getString("fcm_token"));
 						deviceToken.add(rs.getString("fcm_token"));
 					}
 					if(deviceToken==null || deviceToken.size()==0) {
