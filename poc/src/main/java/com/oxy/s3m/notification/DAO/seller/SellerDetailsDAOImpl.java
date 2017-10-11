@@ -237,7 +237,7 @@ public class SellerDetailsDAOImpl  implements SellerDetailsDAO{
 						deviceToken.add(rs.getString("fcm_token"));
 					}
 					if(deviceToken==null || deviceToken.size()==0) {
-						notificationBean.setMessage("No Customer exist for your criteria");
+						notificationBean.setMessage("Either seller is not activate or no Customer exist for your criteria");
 					//notificationBean.setSellerId(Integer.pnotification.getSellerId());
 					return notificationBean;}
 					String pushNotificationmsg=NotificationHelper.sendPushNotification(deviceToken, notification.getNotificationTitle(), notification.getMessages().getMsgTxt());
