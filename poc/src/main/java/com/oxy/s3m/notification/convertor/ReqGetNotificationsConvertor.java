@@ -18,6 +18,7 @@ public class ReqGetNotificationsConvertor {
 	public static ReqGetNotification convert(JSONObject objcustomer) throws JSONException, ParseException{
 		ReqGetNotification reqGetNotification = new ReqGetNotification();
 		SimpleDateFormat format = new SimpleDateFormat("MM-dd-yyyy");
+		System.out.println(objcustomer.getString("lastUpdatedDate")!=null?objcustomer.getString("lastUpdatedDate").toString():"2017-10-14 19.03.56");
 	    Date parsed = format.parse(objcustomer.getString("lastUpdatedDate")!=null?objcustomer.getString("lastUpdatedDate").toString():"2017-10-14 19.03.56");
 	    java.sql.Date lastUpdateDate = new java.sql.Date(parsed.getTime());
 		
