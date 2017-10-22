@@ -17,6 +17,8 @@ public interface SellerService {
 	
 	SellerDetailsBean sendNotification(Notification notification) throws SellerException;
 	
+	SellerDetails active(SellerDetails seller) throws SellerException;
+	
 	/*void deleteUserById(long id);
 
 	List<Customer> findAllUsers(); 

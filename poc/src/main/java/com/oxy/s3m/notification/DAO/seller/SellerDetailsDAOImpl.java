@@ -56,6 +56,7 @@ public class SellerDetailsDAOImpl  implements SellerDetailsDAO{
 			"and sd.seller_id=? ";
 	public static final String UPDATE_SELLER_NOTIFICATION = "UPDATE notification set status='sent' where notification_id=?";
 	public static final String SELLER_NOTIFICATION = "select max(notification_id) notification_id from notification";
+	public static final String SELLER_ACTIVE = "update seller_details set active=? where seller_id=?";
 
 			
 	
@@ -312,6 +313,38 @@ public class SellerDetailsDAOImpl  implements SellerDetailsDAO{
 		stmtSellerInterests.close();
 
 
+	}
+
+	@Override
+	public SellerDetails active(SellerDetails transientInstance) throws SellerException {
+		Connection con = null;
+		PreparedStatement stmtselect = null;		
+		ResultSet rs = null;
+		
+		con = CustMySqlConnectionUtils.getConnection();
+		System.out.println("Insert Query>>" + SELLER_ACTIVE);
+		try {
+			stmtselect = con.prepareStatement(SELLER_ACTIVE);
+			stmtselect.setBoolean(1, transientInstance.getActive());
+			stmtselect.setInt(2, transientInstance.getSellerId());
+			
+			System.out.println("Active : "+transientInstance.getActive() +"sellerId : "+transientInstance.getSellerId());
+			stmtselect.executeUpdate();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			transientInstance.setStatus("Failed");
+			e.printStackTrace();
+		}finally {
+			try {
+				con.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+			
+
+		return transientInstance;
 	}
 
 }

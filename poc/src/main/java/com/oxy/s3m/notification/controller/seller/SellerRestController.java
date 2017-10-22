@@ -11,11 +11,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.oxy.s3m.notification.beans.seller.SellerDetailsBean;
 import com.oxy.s3m.notification.convertor.PushNotificationConvertor;
+import com.oxy.s3m.notification.convertor.SellerDetailsActiveConverter;
 import com.oxy.s3m.notification.convertor.SellerDetailsConverter;
 import com.oxy.s3m.notification.model.seller.Notification;
 import com.oxy.s3m.notification.model.seller.SellerDetails;
 import com.oxy.s3m.notification.service.seller.SellerService;
 import com.oxy.s3m.notification.validators.PushNotificationValidator;
+import com.oxy.s3m.notification.validators.SellerDetailsActiveValidator;
 import com.oxy.s3m.notification.validators.SellerDetailsValidator;
 
 @RestController
@@ -205,4 +207,60 @@ public class SellerRestController {
         return new ResponseEntity<Customer>(HttpStatus.NO_CONTENT);
     }
 
-	 */}
+	 */
+		
+
+		@RequestMapping(value = "/active", method = RequestMethod.POST)	
+		public @ResponseBody SellerDetailsBean active(@RequestBody String objJson) {
+			LOGGER.debug("Logging Start---!");
+			final JSONObject obj = new JSONObject(objJson.trim());
+			JSONObject objcustomer=(JSONObject) obj.get("sellerDetails");
+			
+			SellerDetailsActiveValidator validator = new SellerDetailsActiveValidator();
+			final JSONObject jObject = validator.validate(objcustomer);
+			
+			SellerDetailsBean sellerDetailsBean = new SellerDetailsBean();
+			
+			if(!(Boolean) jObject.get("validate")){
+				
+				for(Object key : jObject.keySet()){
+					if("validate".equals(key)){
+						continue;
+					}
+					String msg = sellerDetailsBean.getMessage() == null ? "" : sellerDetailsBean.getMessage(); 
+					sellerDetailsBean.setMessage( msg + jObject.getString((String)key) + "\n");
+				}			
+				sellerDetailsBean.setStatus("Failed");
+				return sellerDetailsBean;
+			}
+			
+			
+	  		try{
+				
+				if(objcustomer.getString("agree")==null 
+						|| objcustomer.getString("agree").toString().equals("") 
+						|| !objcustomer.getString("agree").toString().equals("Yes")){
+					
+					sellerDetailsBean.setMessage("Terms and Condition should be accepted");				
+					sellerDetailsBean.setStatus("Failed");
+					return sellerDetailsBean;
+				}
+				
+				final SellerDetailsActiveConverter sellerDetailsConverter = new SellerDetailsActiveConverter();
+				SellerDetails seller = sellerDetailsConverter.convertSellerDetails(objcustomer);
+				seller = sellerService.active(seller);
+				sellerDetailsBean.setSellerId(seller.getSellerId());
+				sellerDetailsBean.setSellerName(seller.getSellerName());
+				sellerDetailsBean.setStatus("success");
+				sellerDetailsBean.setMessage("Seller has been activated successfully");
+				
+			}catch(Exception ex){
+				LOGGER.error("Error occured while adding seller details " + ex.getMessage());
+				ex.printStackTrace();
+				sellerDetailsBean.setMessage(ex.getMessage());			
+				sellerDetailsBean.setStatus("Failed");
+			}
+			return sellerDetailsBean;
+		}
+
+}

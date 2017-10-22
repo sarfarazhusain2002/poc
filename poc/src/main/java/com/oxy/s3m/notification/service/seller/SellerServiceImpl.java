@@ -39,4 +39,10 @@ public class SellerServiceImpl implements SellerService {
 		return sellerDetailsDAO.sendNotification(notification);
 	}
 
+	@Override
+	public SellerDetails active(SellerDetails seller) throws SellerException {
+		// TODO Auto-generated method stub
+		return sellerDetailsDAO.active(seller);
+	}
+
 }
